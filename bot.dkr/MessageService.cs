@@ -53,6 +53,9 @@ namespace bot.dkr
                 case "list":
                     await ListCommandHandler(botClient, chatId);
                     break;
+                case "my time":
+                    await GetTimeCommandHandler(botClient, chatId);
+                    break;
                 default:
                     await botClient.SendTextMessageAsync(chatId, "Вибачте, я не знаю даної команди.");
                     await StartCommandHandler(botClient, chatId);
@@ -76,7 +79,8 @@ namespace bot.dkr
                             new InlineKeyboardButton[]
                                         {
                                             InlineKeyboardButton.WithUrl("Кампус", "https://ecampus.kpi.ua/home"),
-                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder")
+                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder"),
+                                            InlineKeyboardButton.WithCallbackData("Дізнатися свій час", "my time"),
                                         }
                             }));
         }
@@ -105,8 +109,29 @@ namespace bot.dkr
         }
         private static async Task CancelCommandHandler(ITelegramBotClient botClient, long chatId)
         {
-            await Repository.CancelForChatAsync(chatId);
-            await botClient.SendTextMessageAsync(chatId, "Успішно відмінено запис на здачу курсової роботи. &#128076;", parseMode: ParseMode.Html);
+            if(await Repository.CancelForChatAsync(chatId))
+            {
+                await botClient.SendTextMessageAsync(chatId, "Успішно відмінено запис на здачу курсової роботи. &#128076;", parseMode: ParseMode.Html);
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(chatId, "Ти ще, на жаль, не зареєстрований. :((", parseMode: ParseMode.Html, replyMarkup:
+                            new InlineKeyboardMarkup(
+                            new List<InlineKeyboardButton[]>()
+                            {
+                            new InlineKeyboardButton[]
+                                        {
+                                            InlineKeyboardButton.WithCallbackData("Записатися на здачу", "submission"),
+                                            InlineKeyboardButton.WithCallbackData("Відмінити бронювання", "cancel"),
+                                        },
+                            new InlineKeyboardButton[]
+                                        {
+                                            InlineKeyboardButton.WithUrl("Кампус", "https://ecampus.kpi.ua/home"),
+                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder"),
+                                            InlineKeyboardButton.WithCallbackData("Дізнатися свій час", "my time"),
+                                        }
+                            }));
+            }
         }
         private static async Task ReminderCommandHandler(ITelegramBotClient botClient, long chatId)
         {
@@ -130,7 +155,8 @@ namespace bot.dkr
                            new InlineKeyboardButton[]
                                         {
                                             InlineKeyboardButton.WithUrl("Кампус", "https://ecampus.kpi.ua/home"),
-                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder")
+                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder"),
+                                            InlineKeyboardButton.WithCallbackData("Дізнатися свій час", "my time"),
                                         }
                            }));
             }
@@ -141,6 +167,31 @@ namespace bot.dkr
         {
             await Repository.SaveTimeForChatAsync(chatId, TimeOnly.Parse(time));
             await botClient.SendTextMessageAsync(chatId, "Напишіть своє ім'я з групою по прикладу. \n Приклад : ЛА-11 Павлюк Олександр");
+        }
+        private static async Task GetTimeCommandHandler(ITelegramBotClient botClient, long chatId)
+        {
+            var time = await Repository.GetTimeForChatAsync(chatId);
+            if (time is null)
+            {
+                await botClient.SendTextMessageAsync(chatId, "Ти ще, на жаль, не зареєстрований. :((", parseMode: ParseMode.Html, replyMarkup:
+                            new InlineKeyboardMarkup(
+                            new List<InlineKeyboardButton[]>()
+                            {
+                            new InlineKeyboardButton[]
+                                        {
+                                            InlineKeyboardButton.WithCallbackData("Записатися на здачу", "submission"),
+                                            InlineKeyboardButton.WithCallbackData("Відмінити бронювання", "cancel"),
+                                        },
+                            new InlineKeyboardButton[]
+                                        {
+                                            InlineKeyboardButton.WithUrl("Кампус", "https://ecampus.kpi.ua/home"),
+                                            InlineKeyboardButton.WithCallbackData("Налаштувати нагадування", "reminder"),
+                                            InlineKeyboardButton.WithCallbackData("Дізнатися свій час", "my time"),
+                                        }
+                            }));
+            }
+            else
+                await botClient.SendTextMessageAsync(chatId, $"Ваш час - {time}") ;
         }
         private static async Task FullNameCommandHandler(ITelegramBotClient botClient, long chatId, string name)
         {
@@ -180,3 +231,5 @@ namespace bot.dkr
         }
     }
 }
+
+

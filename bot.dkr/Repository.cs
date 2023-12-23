@@ -62,11 +62,17 @@ namespace bot.dkr
             student.Completed = true;
             await context.SaveChangesAsync();
         }
-        public static async Task CancelForChatAsync(long chatId)
+        public static async Task<bool> CancelForChatAsync(long chatId)
         {
             using var context = new ApplicationContext();
-            context.Students.Remove(await context.Students.FirstOrDefaultAsync(s => s.ChatId == chatId));
+            var student = await context.Students.FirstOrDefaultAsync(s => s.ChatId == chatId);
+            if (student is null)
+            {
+                return false;
+            }
+            context.Students.Remove(student);
             await context.SaveChangesAsync();
+            return true;
         }
         public static async Task<string> GetGroupedByDateListAsync(long chatId)
         {
@@ -117,6 +123,12 @@ namespace bot.dkr
             var student = context.Students.FirstOrDefault(s => s.ChatId == chat);
             student.isReminder = false;
             await context.SaveChangesAsync();
+        }
+
+        public static async Task<TimeOnly?> GetTimeForChatAsync(long chatId)
+        {
+            using var context = new ApplicationContext();
+            return await context.Students.Where(s => s.ChatId == chatId).Select(s => s.Time).FirstOrDefaultAsync();
         }
     }
 }

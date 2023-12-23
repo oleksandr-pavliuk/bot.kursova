@@ -11,7 +11,7 @@ namespace bot.dkr
 {
     public class ReminderService : BackgroundService
     {
-        private readonly ITelegramBotClient _botClient = new TelegramBotClient("token");
+        private readonly ITelegramBotClient _botClient = new TelegramBotClient("6849620831:AAHT6MgKuCi2bywDrbt2BV3dSzAdzzeueFM");
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -23,7 +23,7 @@ namespace bot.dkr
                     await _botClient.SendTextMessageAsync(chat, "Сьогодні твоя здача курсової роботи.&#128521;", parseMode: ParseMode.Html);
                     await Repository.SetReminderDone(chat);
                 }
-                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
     }

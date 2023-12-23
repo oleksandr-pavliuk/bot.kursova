@@ -7,7 +7,7 @@ namespace bot.dkr
         public DbSet<Student> Students { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(@"connection string");
+            optionsBuilder.UseNpgsql(@"Host=localhost;Port=5432;Database=dkr.bot;Username=postgres;Password=databasePass1;");
         }
         public ApplicationContext()
         {

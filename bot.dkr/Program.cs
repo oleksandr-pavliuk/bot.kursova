@@ -14,7 +14,7 @@ namespace bot.dkr
         private static ReceiverOptions? _receiverOptions;
         static void Main(string[] args)
         {
-            _botClient = new TelegramBotClient("token");
+            _botClient = new TelegramBotClient("6849620831:AAHT6MgKuCi2bywDrbt2BV3dSzAdzzeueFM");
             _receiverOptions = new ReceiverOptions
             {
                 AllowedUpdates = new[]
